@@ -9,7 +9,6 @@ import com.sinch.smsrouter.model.Carrier;
 import com.sinch.smsrouter.model.Message;
 import com.sinch.smsrouter.model.MessageStatus;
 import com.sinch.smsrouter.repository.MessageRepository;
-import com.sinch.smsrouter.repository.OptOutRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.UUID;
