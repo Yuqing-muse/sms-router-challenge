@@ -19,4 +19,8 @@ public class OptOutService {
         phoneNumberValidator.validate(phoneNumber);
         optOutRepository.add(phoneNumber);
     }
+
+    public boolean isOptedOut(String phoneNumber) {
+        return optOutRepository.contains(phoneNumber);
+    }
 }

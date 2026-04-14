@@ -18,41 +18,43 @@ import java.util.UUID;
 public class MessageService {
 
     private final MessageRepository messageRepository;
-    private final OptOutRepository optOutRepository;
+    private final OptOutService optOutService;
     private final PhoneNumberValidator phoneNumberValidator;
     private final CarrierRoutingService carrierRoutingService;
 
     public MessageService(MessageRepository messageRepository,
-                          OptOutRepository optOutRepository,
+                          OptOutService optOutService,
                           PhoneNumberValidator phoneNumberValidator,
                           CarrierRoutingService carrierRoutingService) {
         this.messageRepository = messageRepository;
-        this.optOutRepository = optOutRepository;
+        this.optOutService = optOutService;
         this.phoneNumberValidator = phoneNumberValidator;
         this.carrierRoutingService = carrierRoutingService;
     }
 
     public SendMessageResponse sendMessage(SendMessageRequest request) {
+        String destinationNumber = request.getDestinationNumber();
+
         if (!"SMS".equals(request.getFormat())) {
             throw new UnsupportedFormatException(request.getFormat());
         }
 
-        phoneNumberValidator.validate(request.getDestinationNumber());
+        phoneNumberValidator.validate(destinationNumber);
 
         Message message = new Message(
                 UUID.randomUUID(),
-                request.getDestinationNumber(),
+                destinationNumber,
                 request.getContent(),
                 request.getFormat()
         );
 
-        if (optOutRepository.contains(request.getDestinationNumber())) {
+        if (optOutService.isOptedOut(destinationNumber)) {
             message.setStatus(MessageStatus.BLOCKED);
             messageRepository.save(message);
             return new SendMessageResponse(message.getId(), message.getStatus());
         }
 
-        Carrier carrier = carrierRoutingService.selectCarrier(request.getDestinationNumber());
+        Carrier carrier = carrierRoutingService.selectCarrier(destinationNumber);
         message.setCarrier(carrier);
         message.setStatus(MessageStatus.SENT);
         message.setStatus(MessageStatus.DELIVERED);
