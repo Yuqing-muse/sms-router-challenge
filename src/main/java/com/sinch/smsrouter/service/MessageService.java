@@ -56,6 +56,8 @@ public class MessageService {
         Carrier carrier = carrierRoutingService.selectCarrier(destinationNumber);
         message.setCarrier(carrier);
         message.setStatus(MessageStatus.SENT);
+
+        // Simulate delivery (in a real world this would be async)
         message.setStatus(MessageStatus.DELIVERED);
         messageRepository.save(message);
 
